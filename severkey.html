@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Hệ Thống Cấp Khóa Tuyệt Đối</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
+    
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
+    <style>
+        /* CSS phong cách Dark Luxury Kính Mờ */
+        :root {
+            --bg: #0a0a0c;
+            --main-color: #00ff88; /* Màu xanh Emerald cho chill */
+            --glass: rgba(255, 255, 255, 0.03);
+            --border: rgba(255, 255, 255, 0.05);
+            --glow: 0 0 15px rgba(0, 255, 136, 0.3);
+        }
+
+        body {
+            margin: 0;
+            background: var(--bg);
+            color: #fff;
+            font-family: 'Montserrat', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Vòng tròn neon mờ ảo phía sau tạo cảm giác chill */
+        body::before {
+            content: '';
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            background: var(--main-color);
+            filter: blur(150px);
+            border-radius: 50%;
+            opacity: 0.15;
+            z-index: -1;
+        }
+
+        .container {
+            width: 90vw;
+            max-width: 400px;
+            background: var(--glass);
+            border: 1px solid var(--border);
+            border-radius: 30px;
+            padding: 50px 20px;
+            text-align: center;
+            backdrop-filter: blur(10px); /* Hiệu ứng kính mờ */
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+            opacity: 0;
+            animation: fadeIn 1s forwards;
+        }
+
+        @keyframes fadeIn {
+            to { opacity: 1; transform: translateY(0); }
+            from { opacity: 0; transform: translateY(20px); }
+        }
+
+        .status-header {
+            display: inline-block;
+            padding: 8px 18px;
+            background: rgba(0, 255, 136, 0.1);
+            color: var(--main-color);
+            border-radius: 50px;
+            font-size: 11px;
+            font-weight: bold;
+            letter-spacing: 2px;
+            margin-bottom: 25px;
+            border: 1px solid rgba(0, 255, 136, 0.2);
+        }
+
+        h1 {
+            font-size: 28px;
+            font-weight: 900;
+            margin: 0;
+            color: #fff;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        p.sub-text {
+            color: #666;
+            font-size: 12px;
+            margin: 10px 0 35px;
+        }
+
+        .key-display {
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 20px;
+            padding: 40px 10px;
+            margin-bottom: 35px;
+            border: 1px dashed rgba(0, 255, 136, 0.3);
+            position: relative;
+        }
+
+        .key-text {
+            font-size: 40px;
+            font-weight: 900;
+            color: var(--main-color);
+            letter-spacing: 4px;
+            text-shadow: 0 0 20px rgba(0, 255, 136, 0.6);
+            word-break: break-all;
+        }
+
+        .copy-btn {
+            background: var(--main-color);
+            color: #000;
+            border: none;
+            width: 100%;
+            padding: 22px;
+            border-radius: 18px;
+            font-family: 'Montserrat';
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 10px 20px rgba(0, 255, 136, 0.2);
+        }
+
+        .copy-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 30px rgba(0, 255, 136, 0.4);
+        }
+
+        .copy-btn:active {
+            transform: translateY(1px) scale(0.98);
+        }
+
+        .info {
+            margin-top: 35px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            text-align: left;
+        }
+
+        .info-box {
+            background: rgba(255, 255, 255, 0.03);
+            padding: 15px;
+            border-radius: 15px;
+            border: 1px solid var(--border);
+        }
+
+        .info-label {
+            font-size: 9px;
+            color: #555;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+        }
+
+        .info-val {
+            font-size: 11px;
+            color: #aaa;
+            font-weight: bold;
+        }
+
+        .warning-text {
+            color: #ff4d4d;
+            font-size: 10px;
+            margin-top: 30px;
+            font-weight: bold;
+            opacity: 0.7;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container" id="mainContent">
+    Đang kiểm tra bảo mật...
+</div>
+
+<script>
+    // --- CẤU HÌNH FIREBASE CỦA BẠN (Thay bằng URL của bạn) ---
+    const firebaseConfig = {
+        databaseURL: "https://severupdate-1b36a-default-rtdb.asia-southeast1.firebasedatabase.app/"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    async function startSystem() {
+        const content = document.getElementById('mainContent');
+        
+        try {
+            // 1. Lấy IP thật của người dùng
+            const ipRes = await fetch('https://api.ipify.org?format=json');
+            const ipData = await ipRes.res.json();
+            const userIp = ipData.ip.replace(/\./g, '_'); // Lọc IP để lưu Firebase
+
+            const now = Date.now();
+            const oneDay = 24 * 60 * 60 * 1000; // 24 giờ tính bằng mili giây
+
+            // 2. KIỂM TRA BAN IP
+            const ipSnap = await db.ref('BannedIPs/' + userIp).once('value');
+            const banData = ipSnap.val();
+
+            if (banData && banData.banUntil > now) {
+                const timeLeft = Math.ceil((banData.banUntil - now) / (60 * 60 * 1000));
+                content.innerHTML = `
+                    <div style="border:1px solid red; padding:30px; border-radius:20px; text-align:center;">
+                        <h1 style="color:red;">IP BỊ BAN 24H</h1>
+                        <p>Nghịch F5 ít thôi con trai! 🗿</p>
+                        <p style="font-size:11px;color:#333;">Vui lòng quay lại sau ${timeLeft} giờ.</p>
+                    </div>`;
+                return;
+            }
+
+            // 3. BẪY F5 (Dùng LocalStorage)
+            if (localStorage.getItem('accessGrantedTime')) {
+                // Nếu nó đã lấy Key mà lại tải lại trang -> BAN IP LUÔN
+                await db.ref('BannedIPs/' + userIp).set({ 
+                    banUntil: now + oneDay,
+                    reason: "Spam F5 detected"
+                });
+                content.innerHTML = `
+                    <div style="border:2px solid #ffcc00; padding:30px; border-radius:20px; text-align:center;">
+                        <h1 style="color:#ffcc00;">CÚT! 🗿</h1>
+                        <h2>Đã bảo "Không được F5" mà còn ăn gian?</h2>
+                        <p style="color:red;">IP CỦA BẠN ĐÃ BỊ BAN 24 GIỜ.</p>
+                    </div>`;
+                return;
+            }
+
+            // 4. CẤP KEY (Tự động bypass click_id cho layma.net)
+            const randomKey = Math.random().toString(36).substring(2, 12).toUpperCase();
+            const expiryString = new Date(now + oneDay).toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' });
+
+            // Lưu Key lên Firebase (Hạn dùng 24h)
+            await db.ref('Keys/' + randomKey).set({ 
+                expiry: Math.floor((now + oneDay) / 1000), 
+                uuid: "none" 
+            });
+            
+            // Đánh dấu thời gian lấy Key vào LocalStorage (Cắm bẫy F5)
+            localStorage.setItem('accessGrantedTime', now);
+
+            // GIAO DIỆN CẤP KEY (Luxury & Chill)
+            content.innerHTML = `
+                <div class="status-header">>> SYSTEM VERIFIED <<</div>
+                <h1>SUCCESS!</h1>
+                <p class="sub-text">Temporary access key generated successfully.</p>
+                
+                <div class="key-display">
+                    <div class="key-text" id="keyText">${randomKey}</div>
+                </div>
+                
+                <button class="copy-btn" onclick="copyKey()">COPY ACCESS KEY</button>
+                
+                <div class="info">
+                    <div class="info-box">
+                        <div class="info-label">Status</div>
+                        <div class="info-val" style="color:var(--main-color);">ACTIVE</div>
+                    </div>
+                    <div class="info-box">
+                        <div class="info-label">Expires</div>
+                        <div class="info-val">${expiryString.split(' ')[0]}</div>
+                    </div>
+                </div>
+                
+                <div class="warning-text">⚠️ CẢNH BÁO: F5 HOẶC THOÁT RA LÀ BAN IP 24H!</div>
+            `;
+
+        } catch (err) {
+            content.innerHTML = `<h2 style='color:red;'>Hệ thống bận, hãy thử lại sau!</h2><p style='color:#333;font-size:10px;'>Error: ${err.toString()}</p>`;
+        }
+    }
+
+    function copyKey() {
+        const text = document.getElementById('keyText').innerText;
+        navigator.clipboard.writeText(text).then(() => {
+            alert('Đã Sao chép Key thành công!');
+        });
+    }
+
+    // Khởi động hệ thống
+    startSystem();
+</script>
+
+</body>
+</html>
