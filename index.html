@@ -5,283 +5,248 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Hệ Thống Cấp Khóa Tuyệt Đối</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
-    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
     <style>
-        /* CSS phong cách Dark Luxury Kính Mờ */
         :root {
-            --bg: #0a0a0c;
-            --main-color: #00ff88; /* Màu xanh Emerald cho chill */
-            --glass: rgba(255, 255, 255, 0.03);
-            --border: rgba(255, 255, 255, 0.05);
-            --glow: 0 0 15px rgba(0, 255, 136, 0.3);
+            --bg: #050507;
+            --main-color: #00ff88;
+            --tele-color: #0088cc;
+            --glass: rgba(255, 255, 255, 0.02);
+            --border: rgba(255, 255, 255, 0.07);
         }
 
         body {
-            margin: 0;
-            background: var(--bg);
-            color: #fff;
+            margin: 0; background: var(--bg); color: #fff;
             font-family: 'Montserrat', sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            overflow: hidden;
-            position: relative;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            height: 100vh; overflow: hidden; position: relative;
+            cursor: pointer;
         }
 
-        /* Vòng tròn neon mờ ảo phía sau tạo cảm giác chill */
         body::before {
-            content: '';
-            position: absolute;
-            width: 300px;
-            height: 300px;
-            background: var(--main-color);
-            filter: blur(150px);
-            border-radius: 50%;
-            opacity: 0.15;
-            z-index: -1;
+            content: ''; position: absolute; width: 400px; height: 400px;
+            background: var(--main-color); filter: blur(180px);
+            border-radius: 50%; opacity: 0.08; z-index: -1;
         }
 
         .container {
-            width: 90vw;
-            max-width: 400px;
-            background: var(--glass);
-            border: 1px solid var(--border);
-            border-radius: 30px;
-            padding: 50px 20px;
-            text-align: center;
-            backdrop-filter: blur(10px); /* Hiệu ứng kính mờ */
-            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
-            opacity: 0;
-            animation: fadeIn 1s forwards;
+            width: 85vw; max-width: 380px; background: var(--glass);
+            border: 1px solid var(--border); border-radius: 40px;
+            padding: 40px 25px; text-align: center;
+            backdrop-filter: blur(20px); box-shadow: 0 40px 80px rgba(0, 0, 0, 0.8);
+            z-index: 10; animation: slideIn 0.8s ease-out;
         }
 
-        @keyframes fadeIn {
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(30px); }
             to { opacity: 1; transform: translateY(0); }
-            from { opacity: 0; transform: translateY(20px); }
         }
 
-        .status-header {
-            display: inline-block;
-            padding: 8px 18px;
-            background: rgba(0, 255, 136, 0.1);
-            color: var(--main-color);
-            border-radius: 50px;
-            font-size: 11px;
-            font-weight: bold;
-            letter-spacing: 2px;
-            margin-bottom: 25px;
-            border: 1px solid rgba(0, 255, 136, 0.2);
+        .ip-badge {
+            position: fixed; top: 20px; right: 20px;
+            background: rgba(0, 255, 136, 0.03);
+            border: 1px solid rgba(0, 255, 136, 0.15);
+            padding: 6px 12px; border-radius: 10px;
+            font-size: 9px; font-weight: 900; color: var(--main-color);
+            letter-spacing: 1px; backdrop-filter: blur(10px);
+            z-index: 100; opacity: 0.8;
         }
 
-        h1 {
-            font-size: 28px;
-            font-weight: 900;
-            margin: 0;
-            color: #fff;
-            letter-spacing: 1px;
-            text-transform: uppercase;
+        /* Group nút Telegram lơ lửng */
+        .tele-group {
+            position: fixed; bottom: 85px; right: 20px;
+            display: flex; flex-direction: column; gap: 15px;
+            z-index: 1000;
         }
 
-        p.sub-text {
-            color: #666;
-            font-size: 12px;
-            margin: 10px 0 35px;
-        }
-
-        .key-display {
-            background: rgba(0, 0, 0, 0.4);
-            border-radius: 20px;
-            padding: 40px 10px;
-            margin-bottom: 35px;
-            border: 1px dashed rgba(0, 255, 136, 0.3);
+        .tele-btn {
+            width: 50px; height: 50px;
+            background: var(--tele-color);
+            color: white; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            text-decoration: none; font-size: 24px;
+            box-shadow: 0 8px 20px rgba(0, 136, 204, 0.4);
+            transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: 2px solid rgba(255, 255, 255, 0.1);
             position: relative;
+            animation: float 3s ease-in-out infinite;
+            cursor: pointer; /* Quan trọng */
         }
 
-        .key-text {
-            font-size: 40px;
-            font-weight: 900;
-            color: var(--main-color);
-            letter-spacing: 4px;
-            text-shadow: 0 0 20px rgba(0, 255, 136, 0.6);
-            word-break: break-all;
+        .tele-btn:nth-child(2) { animation-delay: 0.5s; background: #229ED9; }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
         }
 
-        .copy-btn {
-            background: var(--main-color);
-            color: #000;
-            border: none;
-            width: 100%;
-            padding: 22px;
-            border-radius: 18px;
-            font-family: 'Montserrat';
-            font-size: 18px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            box-shadow: 0 10px 20px rgba(0, 255, 136, 0.2);
+        .tele-btn:hover { transform: scale(1.15) !important; animation-play-state: paused; }
+
+        .tele-btn::before {
+            content: attr(data-label);
+            position: absolute; right: 65px;
+            background: rgba(0,0,0,0.8); padding: 5px 12px;
+            border-radius: 8px; font-size: 10px; font-weight: bold;
+            white-space: nowrap; opacity: 0; transition: 0.3s;
+            pointer-events: none; border: 1px solid var(--border);
+            backdrop-filter: blur(10px);
+        }
+        .tele-btn:hover::before { opacity: 1; }
+
+        .music-player {
+            position: fixed; bottom: 20px; left: 50%;
+            transform: translateX(-50%);
+            width: 250px; background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border); border-radius: 20px;
+            padding: 12px 15px; display: flex; flex-direction: column; gap: 8px;
+            backdrop-filter: blur(20px); z-index: 100;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
 
-        .copy-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 15px 30px rgba(0, 255, 136, 0.4);
-        }
-
-        .copy-btn:active {
-            transform: translateY(1px) scale(0.98);
-        }
-
-        .info {
-            margin-top: 35px;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            text-align: left;
-        }
-
-        .info-box {
-            background: rgba(255, 255, 255, 0.03);
-            padding: 15px;
-            border-radius: 15px;
-            border: 1px solid var(--border);
-        }
-
-        .info-label {
-            font-size: 9px;
-            color: #555;
-            margin-bottom: 5px;
-            text-transform: uppercase;
-        }
-
-        .info-val {
-            font-size: 11px;
-            color: #aaa;
-            font-weight: bold;
-        }
-
-        .warning-text {
-            color: #ff4d4d;
-            font-size: 10px;
-            margin-top: 30px;
-            font-weight: bold;
-            opacity: 0.7;
-        }
+        /* Giữ nguyên các phần CSS còn lại của bạn... */
+        .player-top { display: flex; align-items: center; gap: 12px; }
+        .music-info { flex: 1; overflow: hidden; }
+        .music-title { font-size: 9px; font-weight: 900; color: var(--main-color); text-transform: uppercase; }
+        .music-author { font-size: 8px; color: #555; }
+        .visualizer { display: flex; gap: 2px; align-items: flex-end; height: 12px; }
+        .bar { width: 2px; background: var(--main-color); border-radius: 1px; animation: bounce 0.8s infinite ease-in-out; }
+        .bar:nth-child(2) { animation-delay: 0.1s; }
+        .bar:nth-child(3) { animation-delay: 0.2s; }
+        .bar:nth-child(4) { animation-delay: 0.3s; }
+        @keyframes bounce { 0%, 100% { height: 3px; opacity: 0.3; } 50% { height: 12px; opacity: 1; } }
+        .progress-container { width: 100%; height: 3px; background: rgba(255,255,255,0.03); border-radius: 5px; overflow: hidden; }
+        .progress-bar { width: 0%; height: 100%; background: var(--main-color); box-shadow: 0 0 10px var(--main-color); }
+        .status-header { display: inline-block; padding: 6px 15px; background: rgba(0, 255, 136, 0.05); color: var(--main-color); border-radius: 50px; font-size: 9px; font-weight: 900; margin-bottom: 20px; border: 1px solid rgba(0, 255, 136, 0.1); }
+        h1 { font-size: 24px; font-weight: 900; margin: 0; }
+        .key-display { background: rgba(0, 0, 0, 0.4); border-radius: 20px; padding: 30px 10px; margin: 25px 0; border: 1px dashed rgba(0, 255, 136, 0.2); }
+        .key-text { font-size: 32px; font-weight: 900; color: var(--main-color); letter-spacing: 4px; }
+        .copy-btn { background: var(--main-color); color: #000; border: none; width: 100%; padding: 18px; border-radius: 15px; font-family: 'Montserrat'; font-size: 14px; font-weight: 900; cursor: pointer; transition: 0.3s; }
+        .info-box { background: rgba(255, 255, 255, 0.01); padding: 12px; border-radius: 15px; border: 1px solid var(--border); }
     </style>
 </head>
-<body>
+<body onclick="playMusic()">
+
+<div class="ip-badge" id="userIpDisplay">IP: LOADING...</div>
+
+<div class="tele-group">
+    <div class="tele-btn" data-label="Contact Me" onclick="openTele('https://t.me/ktienxios', event)">
+        <i class="fab fa-telegram-plane"></i>
+    </div>
+    <div class="tele-btn" data-label="Channel" onclick="openTele('https://t.me/ktienios', event)">
+        <i class="fas fa-bullhorn"></i>
+    </div>
+</div>
 
 <div class="container" id="mainContent">
-    Đang kiểm tra bảo mật...
+    <p style="font-size: 11px; color: #444;">SECURITY CHECKING...</p>
+</div>
+
+<div class="music-player">
+    <div class="player-top">
+        <div class="visualizer">
+            <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
+        </div>
+        <div class="music-info">
+            <div class="music-title">VIBE SYSTEM</div>
+            <div class="music-author" id="musicStatus">Chạm để phát nhạc</div>
+        </div>
+    </div>
+    <div class="progress-container">
+        <div class="progress-bar" id="progressBar"></div>
+    </div>
+    <audio id="bgMusic" loop preload="auto">
+        <source src="https://unwilling-azure-vittuupafw.edgeone.app/snaptt.me-23459475.mp3" type="audio/mpeg">
+    </audio>
 </div>
 
 <script>
-    // --- CẤU HÌNH FIREBASE CỦA BẠN (Thay bằng URL của bạn) ---
-    const firebaseConfig = {
-        databaseURL: "https://severupdate-1b36a-default-rtdb.asia-southeast1.firebasedatabase.app/"
-    };
+    // Hàm mở Telegram ép trình duyệt chuyển hướng
+    function openTele(url, e) {
+        e.stopPropagation(); // Chặn sự kiện click của body
+        window.open(url, '_blank'); // Mở trong tab mới hoặc ứng dụng
+    }
+
+    const firebaseConfig = { databaseURL: "https://severupdate-1b36a-default-rtdb.asia-southeast1.firebasedatabase.app/" };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    async function startSystem() {
-        const content = document.getElementById('mainContent');
-        
-        try {
-            // 1. Lấy IP thật của người dùng
-            const ipRes = await fetch('https://api.ipify.org?format=json');
-            const ipData = await ipRes.res.json();
-            const userIp = ipData.ip.replace(/\./g, '_'); // Lọc IP để lưu Firebase
+    const audio = document.getElementById('bgMusic');
+    const pBar = document.getElementById('progressBar');
+    const mStatus = document.getElementById('musicStatus');
+    const ipDisplay = document.getElementById('userIpDisplay');
 
-            const now = Date.now();
-            const oneDay = 24 * 60 * 60 * 1000; // 24 giờ tính bằng mili giây
-
-            // 2. KIỂM TRA BAN IP
-            const ipSnap = await db.ref('BannedIPs/' + userIp).once('value');
-            const banData = ipSnap.val();
-
-            if (banData && banData.banUntil > now) {
-                const timeLeft = Math.ceil((banData.banUntil - now) / (60 * 60 * 1000));
-                content.innerHTML = `
-                    <div style="border:1px solid red; padding:30px; border-radius:20px; text-align:center;">
-                        <h1 style="color:red;">IP BỊ BAN 24H</h1>
-                        <p>Nghịch F5 ít thôi con trai! 🗿</p>
-                        <p style="font-size:11px;color:#333;">Vui lòng quay lại sau ${timeLeft} giờ.</p>
-                    </div>`;
-                return;
-            }
-
-            // 3. BẪY F5 (Dùng LocalStorage)
-            if (localStorage.getItem('accessGrantedTime')) {
-                // Nếu nó đã lấy Key mà lại tải lại trang -> BAN IP LUÔN
-                await db.ref('BannedIPs/' + userIp).set({ 
-                    banUntil: now + oneDay,
-                    reason: "Spam F5 detected"
-                });
-                content.innerHTML = `
-                    <div style="border:2px solid #ffcc00; padding:30px; border-radius:20px; text-align:center;">
-                        <h1 style="color:#ffcc00;">CÚT! 🗿</h1>
-                        <h2>Đã bảo "Không được F5" mà còn ăn gian?</h2>
-                        <p style="color:red;">IP CỦA BẠN ĐÃ BỊ BAN 24 GIỜ.</p>
-                    </div>`;
-                return;
-            }
-
-            // 4. CẤP KEY (Tự động bypass click_id cho layma.net)
-            const randomKey = Math.random().toString(36).substring(2, 12).toUpperCase();
-            const expiryString = new Date(now + oneDay).toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' });
-
-            // Lưu Key lên Firebase (Hạn dùng 24h)
-            await db.ref('Keys/' + randomKey).set({ 
-                expiry: Math.floor((now + oneDay) / 1000), 
-                uuid: "none" 
-            });
-            
-            // Đánh dấu thời gian lấy Key vào LocalStorage (Cắm bẫy F5)
-            localStorage.setItem('accessGrantedTime', now);
-
-            // GIAO DIỆN CẤP KEY (Luxury & Chill)
-            content.innerHTML = `
-                <div class="status-header">>> SYSTEM VERIFIED <<</div>
-                <h1>SUCCESS!</h1>
-                <p class="sub-text">Temporary access key generated successfully.</p>
-                
-                <div class="key-display">
-                    <div class="key-text" id="keyText">${randomKey}</div>
-                </div>
-                
-                <button class="copy-btn" onclick="copyKey()">COPY ACCESS KEY</button>
-                
-                <div class="info">
-                    <div class="info-box">
-                        <div class="info-label">Status</div>
-                        <div class="info-val" style="color:var(--main-color);">ACTIVE</div>
-                    </div>
-                    <div class="info-box">
-                        <div class="info-label">Expires</div>
-                        <div class="info-val">${expiryString.split(' ')[0]}</div>
-                    </div>
-                </div>
-                
-                <div class="warning-text">⚠️ CẢNH BÁO: F5 HOẶC THOÁT RA LÀ BAN IP 24H!</div>
-            `;
-
-        } catch (err) {
-            content.innerHTML = `<h2 style='color:red;'>Hệ thống bận, hãy thử lại sau!</h2><p style='color:#333;font-size:10px;'>Error: ${err.toString()}</p>`;
+    function playMusic() {
+        if (audio.paused) {
+            audio.play().then(() => { mStatus.innerText = "Music is ON"; })
+            .catch(e => console.log(e));
         }
     }
 
-    function copyKey() {
-        const text = document.getElementById('keyText').innerText;
-        navigator.clipboard.writeText(text).then(() => {
-            alert('Đã Sao chép Key thành công!');
-        });
-    }
+    async function startSystem() {
+        const content = document.getElementById('mainContent');
+        audio.ontimeupdate = function() {
+            if (audio.duration) {
+                const pct = (audio.currentTime / audio.duration) * 100;
+                pBar.style.width = pct + "%";
+            }
+        };
+        
+        try {
+            const ipRes = await fetch('https://api.ipify.org?format=json');
+            const ipData = await ipRes.json(); 
+            const realIp = ipData.ip;
+            const userIpKey = realIp.replace(/\./g, '_');
+            ipDisplay.innerText = "IP: " + realIp;
 
-    // Khởi động hệ thống
+            const now = Date.now();
+            const oneDay = 24 * 60 * 60 * 1000;
+
+            const ipSnap = await db.ref('BannedIPs/' + userIpKey).once('value');
+            const banData = ipSnap.val();
+
+            if (banData && banData.banUntil > now) {
+                content.innerHTML = `<h1 style="color:#ff4d4d;">DENIED</h1><p style="font-size:10px;">BANNED IP 24H</p>`;
+                return;
+            }
+
+            if (location.hostname !== "localhost" && localStorage.getItem('accessKeyTime')) {
+                await db.ref('BannedIPs/' + userIpKey).set({ banUntil: now + oneDay });
+                content.innerHTML = `<h1 style="color:#ffcc00;">BANNED</h1><p style="color:red; font-size:10px;">STOP SPAMMING!</p>`;
+                return;
+            }
+
+            const randomKey = Math.random().toString(36).substring(2, 12).toUpperCase();
+            const expiryString = new Date(now + oneDay).toLocaleDateString('vi-VN');
+
+            await db.ref('Keys/' + randomKey).set({ expiry: Math.floor((now+oneDay)/1000), uuid: "none" });
+            localStorage.setItem('accessKeyTime', now);
+
+            content.innerHTML = `
+                <div class="status-header">VERIFIED</div>
+                <h1>AUTHORIZED</h1>
+                <div class="key-display"><div class="key-text" id="keyText">${randomKey}</div></div>
+                <button class="copy-btn" id="copyBtn">COPY ACCESS KEY</button>
+                <div class="info" style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:15px;">
+                    <div class="info-box"><div style="font-size:8px;color:#444">STATUS</div><div style="font-size:10px;color:var(--main-color)">ACTIVE</div></div>
+                    <div class="info-box"><div style="font-size:8px;color:#444">EXPIRY</div><div style="font-size:10px;color:#888">${expiryString}</div></div>
+                </div>
+            `;
+
+            document.getElementById('copyBtn').addEventListener('click', (e) => {
+                e.stopPropagation();
+                navigator.clipboard.writeText(document.getElementById('keyText').innerText);
+                playMusic();
+                alert('Copied!');
+            });
+        } catch (err) {
+            content.innerHTML = `<h2 style="color:red;">ERROR</h2>`;
+        }
+    }
     startSystem();
 </script>
-
 </body>
 </html>
