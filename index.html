@@ -134,15 +134,15 @@
 <div class="ip-badge" id="userIpDisplay">IP: LOADING...</div>
 
 <div class="tele-group">
-    <div class="tele-btn admin-btn" data-label="Admin Info" onclick="openAdminPage(event)">
+    <a href="admin_info.html" class="tele-btn admin-btn" data-label="Admin Info" onclick="event.stopPropagation()">
         <i class="fas fa-user-shield"></i>
-    </div>
-    <div class="tele-btn" data-label="Contact Me" onclick="openTele('https://t.me/ktienxios', event)">
+    </a>
+    <a href="https://t.me/ktienxios" target="_blank" class="tele-btn" data-label="Contact Me" onclick="event.stopPropagation()">
         <i class="fab fa-telegram-plane"></i>
-    </div>
-    <div class="tele-btn" data-label="Channel" onclick="openTele('https://t.me/ktienios', event)">
+    </a>
+    <a href="https://t.me/ktienios" target="_blank" class="tele-btn" data-label="Channel" onclick="event.stopPropagation()">
         <i class="fas fa-bullhorn"></i>
-    </div>
+    </a>
 </div>
 
 <div class="container" id="mainContent">
