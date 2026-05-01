@@ -14,6 +14,7 @@
             --bg: #050507;
             --main-color: #00ff88;
             --tele-color: #0088cc;
+            --admin-color: #ff0055;
             --glass: rgba(255, 255, 255, 0.02);
             --border: rgba(255, 255, 255, 0.07);
         }
@@ -55,7 +56,6 @@
             z-index: 100; opacity: 0.8;
         }
 
-        /* Group nút Telegram lơ lửng */
         .tele-group {
             position: fixed; bottom: 85px; right: 20px;
             display: flex; flex-direction: column; gap: 15px;
@@ -73,10 +73,12 @@
             border: 2px solid rgba(255, 255, 255, 0.1);
             position: relative;
             animation: float 3s ease-in-out infinite;
-            cursor: pointer; /* Quan trọng */
+            cursor: pointer;
         }
 
-        .tele-btn:nth-child(2) { animation-delay: 0.5s; background: #229ED9; }
+        /* Nút Admin riêng biệt */
+        .admin-btn { background: var(--admin-color); box-shadow: 0 8px 20px rgba(255, 0, 85, 0.3); animation-delay: 0.2s; }
+        .tele-btn:nth-child(3) { animation-delay: 0.5s; background: #229ED9; }
 
         @keyframes float {
             0% { transform: translateY(0px); }
@@ -107,7 +109,6 @@
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
 
-        /* Giữ nguyên các phần CSS còn lại của bạn... */
         .player-top { display: flex; align-items: center; gap: 12px; }
         .music-info { flex: 1; overflow: hidden; }
         .music-title { font-size: 9px; font-weight: 900; color: var(--main-color); text-transform: uppercase; }
@@ -133,6 +134,9 @@
 <div class="ip-badge" id="userIpDisplay">IP: LOADING...</div>
 
 <div class="tele-group">
+    <div class="tele-btn admin-btn" data-label="Admin Info" onclick="openAdminPage(event)">
+        <i class="fas fa-user-shield"></i>
+    </div>
     <div class="tele-btn" data-label="Contact Me" onclick="openTele('https://t.me/ktienxios', event)">
         <i class="fab fa-telegram-plane"></i>
     </div>
@@ -159,15 +163,19 @@
         <div class="progress-bar" id="progressBar"></div>
     </div>
     <audio id="bgMusic" loop preload="auto">
-        <source src="https://national-pink-2bzpee87yu.edgeone.app/snaptt.me-23459475.mp3" type="audio/mpeg">
+        <source src="https://quaint-peach-oza4skkibh.edgeone.app/snaptt.me-68731898.mp3" type="audio/mpeg">
     </audio>
 </div>
 
 <script>
-    // Hàm mở Telegram ép trình duyệt chuyển hướng
+    function openAdminPage(e) {
+        e.stopPropagation();
+        window.location.href = 'admin_info.html'; 
+    }
+
     function openTele(url, e) {
-        e.stopPropagation(); // Chặn sự kiện click của body
-        window.open(url, '_blank'); // Mở trong tab mới hoặc ứng dụng
+        e.stopPropagation(); 
+        window.open(url, '_blank'); 
     }
 
     const firebaseConfig = { databaseURL: "https://severupdate-1b36a-default-rtdb.asia-southeast1.firebasedatabase.app/" };
